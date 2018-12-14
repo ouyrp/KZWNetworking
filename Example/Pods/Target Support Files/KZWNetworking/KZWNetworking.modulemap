@@ -1,0 +1,6 @@
+framework module KZWNetworking {
+  umbrella header "KZWNetworking-umbrella.h"
+
+  export *
+  module * { export * }
+}
