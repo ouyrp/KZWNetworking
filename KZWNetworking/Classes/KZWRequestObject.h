@@ -5,8 +5,8 @@
 //  Created by sq on 15/11/4.
 //  Copyright © 2015年 elm. All rights reserved.
 //
-#import <Foundation/Foundation.h>
 #import "KZWHttpManager.h"
+#import <Foundation/Foundation.h>
 #import <Mantle/MTLModel.h>
 
 typedef NS_ENUM(NSUInteger, KZWHTTPMethod) {
@@ -43,7 +43,7 @@ typedef void (^KZWRequestComplete)(id object, NSError *error);
 
 - (void)startRequestComplete:(KZWRequestComplete)complete;
 
-- (void)startRequestComplete:(KZWRequestComplete)complete progress:(void (^)(NSProgress * uploadProgress)) progress;
+- (void)startRequestComplete:(KZWRequestComplete)complete progress:(void (^)(NSProgress *uploadProgress))progress;
 
 - (void)cancel;
 

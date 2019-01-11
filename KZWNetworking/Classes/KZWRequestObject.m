@@ -7,9 +7,9 @@
 //
 
 #import "KZWRequestObject.h"
-#import <Mantle/MTLJSONAdapter.h>
-#import <KZWUtils/KZWUtils.h>
 #import "NSError+KZWNetworking.h"
+#import <KZWUtils/KZWUtils.h>
+#import <Mantle/MTLJSONAdapter.h>
 
 @interface KZWRequestObject ()
 @property (nonatomic, copy) KZWRequestComplete complete;
@@ -23,17 +23,17 @@
     switch (self.method) {
         case KZWHTTPMethodGet: {
             _task = [KZWHttpManager GET:self.path
-                              parameters:self.params
-                       completionHandler:^(NSURLSessionDataTask *_Nonnull task, id _Nonnull responseObject, NSError *_Nonnull error) {
-                           [self handleInMainThread:task responseObject:responseObject error:error];
-                       }];
+                             parameters:self.params
+                      completionHandler:^(NSURLSessionDataTask *_Nonnull task, id _Nonnull responseObject, NSError *_Nonnull error) {
+                          [self handleInMainThread:task responseObject:responseObject error:error];
+                      }];
         } break;
         case KZWHTTPMethodPut: {
             _task = [KZWHttpManager PUT:self.path
-                              parameters:self.params
-                       completionHandler:^(NSURLSessionDataTask *_Nonnull task, id _Nonnull responseObject, NSError *_Nonnull error) {
-                           [self handleInMainThread:task responseObject:responseObject error:error];
-                       }];
+                             parameters:self.params
+                      completionHandler:^(NSURLSessionDataTask *_Nonnull task, id _Nonnull responseObject, NSError *_Nonnull error) {
+                          [self handleInMainThread:task responseObject:responseObject error:error];
+                      }];
         } break;
         case KZWHTTPMethodPost: {
             _task = [KZWHttpManager POST:self.path parameters:self.params completionHandler:^(NSURLSessionDataTask *_Nonnull task, id _Nonnull responseObject, NSError *_Nonnull error) {
@@ -42,24 +42,24 @@
         } break;
         case KZWHTTPMethodDelete: {
             _task = [KZWHttpManager DELETE:self.path
-                                 parameters:self.params
-                          completionHandler:^(NSURLSessionDataTask *_Nonnull task, id _Nonnull responseObject, NSError *_Nonnull error) {
-                              [self handleInMainThread:task responseObject:responseObject error:error];
-                          }];
+                                parameters:self.params
+                         completionHandler:^(NSURLSessionDataTask *_Nonnull task, id _Nonnull responseObject, NSError *_Nonnull error) {
+                             [self handleInMainThread:task responseObject:responseObject error:error];
+                         }];
         } break;
         case KZWHTTPMethodImage: {
             if (self.images) {
                 _task = [KZWHttpManager POST:self.path
-                                   parameters:self.params
-                                       images:self.images
-                            completionHandler:^(NSURLSessionDataTask *_Nonnull task, id _Nonnull responseObject, NSError *_Nonnull error) {
-                                [self handleInMainThread:task responseObject:responseObject error:error];
-                            }
-                                     progress:^(NSProgress *_Nonnull uploadProgress) {
-                                         if (progress) {
-                                             progress(uploadProgress);
-                                         }
-                                     }];
+                    parameters:self.params
+                    images:self.images
+                    completionHandler:^(NSURLSessionDataTask *_Nonnull task, id _Nonnull responseObject, NSError *_Nonnull error) {
+                        [self handleInMainThread:task responseObject:responseObject error:error];
+                    }
+                    progress:^(NSProgress *_Nonnull uploadProgress) {
+                        if (progress) {
+                            progress(uploadProgress);
+                        }
+                    }];
             } else if (self.image) {
                 _task = [KZWHttpManager POST:self.path parameters:self.params image:self.image imageName:self.imageName completionHandler:^(NSURLSessionDataTask *_Nonnull task, id _Nonnull responseObject, NSError *_Nonnull error) {
                     [self handleInMainThread:task responseObject:responseObject error:error];
@@ -69,7 +69,7 @@
                     }
                 }];
             }
-            
+
         } break;
         default:
             break;
@@ -94,7 +94,7 @@
             }
         }
     }
-    
+
     return propertyParams.count == 0 ? nil : [propertyParams copy];
 }
 
@@ -139,14 +139,14 @@
                         self.complete(responseObject[@"data"], nil);
                         return;
                     }
-                    
+
                     if ([responseObject[@"data"] isKindOfClass:[NSArray class]]) {
-                        
+
                         if (!self.className) {
                             self.complete(responseObject, nil);
                             return;
                         }
-                        
+
                         NSError *parseError = nil;
                         NSArray *object = [MTLJSONAdapter modelsOfClass:NSClassFromString(self.className)
                                                           fromJSONArray:responseObject[@"data"]
@@ -155,14 +155,14 @@
                             self.complete(nil, [NSError errorWithDomain:KZWNetworkErrorDomain
                                                                    code:KZWNeteworkBusinessError
                                                                userInfo:@{
-                                                                          KZWNetworkUserMessage: @"数据格式不正确"
-                                                                          }]);
+                                                                   KZWNetworkUserMessage : @"数据格式不正确"
+                                                               }]);
                             return;
                         }
                         self.complete(object, nil);
                         return;
                     }
-                    
+
                     id object = [MTLJSONAdapter modelOfClass:NSClassFromString(self.className)
                                           fromJSONDictionary:responseObject[@"data"]
                                                        error:&parseError];
@@ -170,30 +170,31 @@
                         self.complete(nil, [NSError errorWithDomain:KZWNetworkErrorDomain
                                                                code:KZWNeteworkBusinessError
                                                            userInfo:@{
-                                                                      KZWNetworkUserMessage: @"数据格式不正确"
-                                                                      }]);;
+                                                               KZWNetworkUserMessage : @"数据格式不正确"
+                                                           }]);
+                        ;
                         return;
                     }
                     self.complete(object, nil);
                     return;
                 }
-                
+
                 NSString *message = ((NSDictionary *)responseObject)[@"message"] ? ((NSDictionary *)responseObject)[@"message"] : @"未知错误";
-                
+
                 NSError *logicError = [NSError errorWithDomain:KZWNetworkErrorDomain
                                                           code:KZWNeteworkBusinessError
                                                       userInfo:@{
-                                                                 KZWNetworkUserMessage: message,
-                                                                 KZWNetworkBusinessErrorCode: code ? code : @"unknow"
-                                                                 }];
+                                                          KZWNetworkUserMessage : message,
+                                                          KZWNetworkBusinessErrorCode : code ? code : @"unknow"
+                                                      }];
                 self.complete(nil, logicError);
                 return;
             }
             NSError *dataError = [NSError errorWithDomain:KZWNetworkErrorDomain
                                                      code:KZWNeteworkBusinessError
                                                  userInfo:@{
-                                                            KZWNetworkUserMessage: @"数据格式不正确"
-                                                            }];
+                                                     KZWNetworkUserMessage : @"数据格式不正确"
+                                                 }];
             self.complete(nil, dataError);
             return;
         } else if ([responseObject isKindOfClass:[NSArray class]]) {
@@ -203,13 +204,13 @@
             }
             NSError *parseError = nil;
             NSArray *object =
-            [MTLJSONAdapter modelsOfClass:NSClassFromString(self.className) fromJSONArray:responseObject[@"data"] error:&parseError];
+                [MTLJSONAdapter modelsOfClass:NSClassFromString(self.className) fromJSONArray:responseObject[@"data"] error:&parseError];
             if (parseError) {
                 self.complete(nil, [NSError errorWithDomain:KZWNetworkErrorDomain
                                                        code:KZWNeteworkBusinessError
                                                    userInfo:@{
-                                                              KZWNetworkUserMessage: @"数据格式不正确"
-                                                              }]);
+                                                       KZWNetworkUserMessage : @"数据格式不正确"
+                                                   }]);
                 return;
             }
             self.complete(object, nil);
