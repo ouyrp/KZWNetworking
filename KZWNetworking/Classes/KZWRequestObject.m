@@ -21,41 +21,56 @@
                     progress:(nullable void (^)(NSProgress *_Nonnull uploadProgress))progress {
     self.complete = complete;
     switch (self.method) {
-        case LPDHTTPMethodGet: {
+        case KZWHTTPMethodGet: {
             _task = [KZWHttpManager GET:self.path
                               parameters:self.params
                        completionHandler:^(NSURLSessionDataTask *_Nonnull task, id _Nonnull responseObject, NSError *_Nonnull error) {
                            [self handleInMainThread:task responseObject:responseObject error:error];
                        }];
         } break;
-        case LPDHTTPMethodPut: {
+        case KZWHTTPMethodPut: {
             _task = [KZWHttpManager PUT:self.path
                               parameters:self.params
                        completionHandler:^(NSURLSessionDataTask *_Nonnull task, id _Nonnull responseObject, NSError *_Nonnull error) {
                            [self handleInMainThread:task responseObject:responseObject error:error];
                        }];
         } break;
-        case LPDHTTPMethodPost: {
-            _task = [KZWHttpManager POST:self.path
-                               parameters:self.params
-                                   images:self.images
-                        completionHandler:^(NSURLSessionDataTask *_Nonnull task, id _Nonnull responseObject, NSError *_Nonnull error) {
-                            [self handleInMainThread:task responseObject:responseObject error:error];
-                        }
-                                 progress:^(NSProgress *_Nonnull uploadProgress) {
-                                     if (progress) {
-                                         progress(uploadProgress);
-                                     }
-                                 }];
+        case KZWHTTPMethodPost: {
+            _task = [KZWHttpManager POST:self.path parameters:self.params completionHandler:^(NSURLSessionDataTask *_Nonnull task, id _Nonnull responseObject, NSError *_Nonnull error) {
+                [self handleInMainThread:task responseObject:responseObject error:error];
+            }];
         } break;
-        case LPDHTTPMethodDelete: {
+        case KZWHTTPMethodDelete: {
             _task = [KZWHttpManager DELETE:self.path
                                  parameters:self.params
                           completionHandler:^(NSURLSessionDataTask *_Nonnull task, id _Nonnull responseObject, NSError *_Nonnull error) {
                               [self handleInMainThread:task responseObject:responseObject error:error];
                           }];
         } break;
+        case KZWHTTPMethodImage: {
+            if (self.images) {
+                _task = [KZWHttpManager POST:self.path
+                                   parameters:self.params
+                                       images:self.images
+                            completionHandler:^(NSURLSessionDataTask *_Nonnull task, id _Nonnull responseObject, NSError *_Nonnull error) {
+                                [self handleInMainThread:task responseObject:responseObject error:error];
+                            }
+                                     progress:^(NSProgress *_Nonnull uploadProgress) {
+                                         if (progress) {
+                                             progress(uploadProgress);
+                                         }
+                                     }];
+            } else if (self.image) {
+                _task = [KZWHttpManager POST:self.path parameters:self.params image:self.image imageName:self.imageName completionHandler:^(NSURLSessionDataTask *_Nonnull task, id _Nonnull responseObject, NSError *_Nonnull error) {
+                    [self handleInMainThread:task responseObject:responseObject error:error];
+                } progress:^(NSProgress *_Nonnull uploadProgress) {
+                    if (progress) {
+                        progress(uploadProgress);
+                    }
+                }];
+            }
             
+        } break;
         default:
             break;
     }

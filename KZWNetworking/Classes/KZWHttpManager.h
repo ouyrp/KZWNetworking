@@ -25,6 +25,13 @@ NS_ASSUME_NONNULL_BEGIN
              completionHandler:(nullable void (^)(NSURLSessionDataTask *__unused task, id responseObject, NSError *error))complete
                       progress:(nullable void (^)(NSProgress * _Nonnull uploadProgress)) progress;
 
++ (NSURLSessionDataTask *)POST:(NSString *)path
+                    parameters:(id)parameters
+                         image:(UIImage *)image
+                     imageName:(NSString *)imageName
+             completionHandler:(void (^)(NSURLSessionDataTask *_Nonnull task, id _Nonnull responseObject, NSError *_Nonnull error))complete
+                      progress:(void (^)(NSProgress *_Nonnull))progress;
+
 + (NSURLSessionDataTask *)POST:(NSString *_Nonnull)path
                     parameters:(nullable id)parameters
              completionHandler:(nullable void (^)(NSURLSessionDataTask *__unused task, id responseObject, NSError *error))complete;

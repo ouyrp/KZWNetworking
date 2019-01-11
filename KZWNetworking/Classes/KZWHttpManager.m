@@ -97,34 +97,56 @@
 + (NSURLSessionDataTask *)POST:(NSString *)path
                     parameters:(id)parameters
                         images:(NSArray *)images
-             completionHandler:(void (^)(NSURLSessionDataTask * _Nonnull, id _Nonnull, NSError * _Nonnull))complete
-                      progress:(void (^)(NSProgress * _Nonnull))progress {
-    if (images) {
-        return [[self sharedRequestOperationManager] POST:[[self baseUrl] stringByAppendingString:path] parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
-            if (!images) {
-                return;
-            }
-            for (int i = 0 ; i < images.count; i++) {
-                //                NSData *fileData = UIImagePNGRepresentation(images[i]);
-                [formData appendPartWithFileData :images[i] name:@"files" fileName:[NSString stringWithFormat:@"pic_%d.png",i]  mimeType:@"image/png"];
-            }
-        } progress:^(NSProgress * _Nonnull uploadProgress) {
-            if (progress) {
-                progress(uploadProgress);
-            }
-        } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-            if (complete) {
-                complete(task, responseObject, nil);
-            }
-        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-            if (complete) {
-                complete(task,nil,error);
-            }
-        }];
-    }
-    return [self POST:path parameters:parameters completionHandler:complete];
+             completionHandler:(void (^)(NSURLSessionDataTask *_Nonnull task, id _Nonnull responseObject, NSError *_Nonnull error))complete
+                      progress:(void (^)(NSProgress *_Nonnull uploadProgress))progress {
+    return [[self sharedRequestOperationManager] POST:[[self baseUrl] stringByAppendingString:path] parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
+        if (!images) {
+            return;
+        }
+        for (int i = 0; i < images.count; i++) {
+            [formData appendPartWithFileData:images[i] name:@"files" fileName:[NSString stringWithFormat:@"pic_%d.png", i] mimeType:@"image/png"];
+        }
+    } progress:^(NSProgress *_Nonnull uploadProgress) {
+        if (progress) {
+            progress(uploadProgress);
+        }
+    } success:^(NSURLSessionDataTask *_Nonnull task, id _Nullable responseObject) {
+        if (complete) {
+            complete(task, responseObject, nil);
+        }
+    } failure:^(NSURLSessionDataTask *_Nullable task, NSError *_Nonnull error) {
+        if (complete) {
+            complete(task, nil, error);
+        }
+    }];
 }
 
++ (NSURLSessionDataTask *)POST:(NSString *)path
+                    parameters:(id)parameters
+                         image:(UIImage *)image
+                     imageName:(NSString *)imageName
+             completionHandler:(void (^)(NSURLSessionDataTask *_Nonnull task, id _Nonnull responseObject, NSError *_Nonnull error))complete
+                      progress:(void (^)(NSProgress *_Nonnull uploadProgress))progress {
+    return [[self sharedRequestOperationManager] POST:[[self baseUrl] stringByAppendingString:path] parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
+        if (!image) {
+            return;
+        }
+        NSData *fileData = UIImagePNGRepresentation(image);
+        [formData appendPartWithFileData:fileData name:@"files" fileName:imageName mimeType:@"image/png"];
+    } progress:^(NSProgress *_Nonnull uploadProgress) {
+        if (progress) {
+            progress(uploadProgress);
+        }
+    } success:^(NSURLSessionDataTask *_Nonnull task, id _Nullable responseObject) {
+        if (complete) {
+            complete(task, responseObject, nil);
+        }
+    } failure:^(NSURLSessionDataTask *_Nullable task, NSError *_Nonnull error) {
+        if (complete) {
+            complete(task, nil, error);
+        }
+    }];
+}
 
 + (NSURLSessionDataTask *)POST:(NSString *_Nonnull)path
                     parameters:(nullable id)parameters

@@ -9,11 +9,12 @@
 #import "KZWHttpManager.h"
 #import <Mantle/MTLModel.h>
 
-typedef NS_ENUM(NSUInteger, LPDHTTPMethod) {
-  LPDHTTPMethodGet,
-  LPDHTTPMethodPost,
-  LPDHTTPMethodPut,
-  LPDHTTPMethodDelete,
+typedef NS_ENUM(NSUInteger, KZWHTTPMethod) {
+    KZWHTTPMethodGet,
+    KZWHTTPMethodPost,
+    KZWHTTPMethodPut,
+    KZWHTTPMethodDelete,
+    KZWHTTPMethodImage,
 };
 
 typedef void (^KZWRequestComplete)(id object, NSError *error);
@@ -30,9 +31,13 @@ typedef void (^KZWRequestComplete)(id object, NSError *error);
 
 @property (nonatomic, strong) NSArray *images;
 
+@property (nonatomic, strong) UIImage *image;
+
+@property (nonatomic, copy) NSString *imageName;
+
 @property (nonatomic, strong) NSDictionary *paramDic;
 
-@property (nonatomic, assign) LPDHTTPMethod method;
+@property (nonatomic, assign) KZWHTTPMethod method;
 
 @property (nonatomic, readonly) NSURLSessionDataTask *task;
 
